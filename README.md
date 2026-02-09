@@ -1,4 +1,4 @@
-![Release](https://img.shields.io/github/v/release/vieitesss/jocq?display_name=tag&sort=semver) ![License](https://img.shields.io/github/license/<OWNER>/<REPO>)
+![Release](https://img.shields.io/github/v/release/vieitesss/jocq?display_name=tag&sort=semver) ![License](https://img.shields.io/github/license/vieitessss/jocq)
 
 # jocq
 
