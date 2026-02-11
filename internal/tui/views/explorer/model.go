@@ -74,11 +74,14 @@ func (e ExplorerModel) Update(msg tea.Msg) (views.View, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
+		inWidth := int(float32(msg.Width) * e.Ratio)
+		outWidth := msg.Width - inWidth
+
 		e.In.Height = e.viewportHeight(msg.Height)
-		e.In.Width = e.viewportWidth(msg.Width)
+		e.In.Width = inWidth
 
 		e.Out.Height = e.viewportHeight(msg.Height)
-		e.Out.Width = e.viewportWidth(msg.Width)
+		e.Out.Width = outWidth
 
 		e.Input.Width = msg.Width
 	}
@@ -91,11 +94,6 @@ func (e ExplorerModel) Update(msg tea.Msg) (views.View, tea.Cmd) {
 
 func (e ExplorerModel) View() string {
 	return e.ExplorerView()
-}
-
-func (e ExplorerModel) viewportWidth(width int) int {
-	w := float32(width) * e.Ratio
-	return int(w)
 }
 
 func (e ExplorerModel) viewportHeight(height int) int {
