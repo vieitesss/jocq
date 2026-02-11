@@ -7,4 +7,4 @@ run *parameters:
     go run ./cmd/jocq {{ parameters }}
 
 file:
-    go run ./cmd/jocq --f assets/example.json
+    go run ./cmd/jocq -f assets/example.json
