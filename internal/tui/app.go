@@ -2,6 +2,7 @@ package tui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/vieitesss/jocq/internal/buffer"
 	"github.com/vieitesss/jocq/internal/tui/views"
 	"github.com/vieitesss/jocq/internal/tui/views/explorer"
 )
@@ -13,22 +14,33 @@ const (
 )
 
 type AppModel struct {
-	active        views.View
-	views         map[ViewID]views.View
+	// The views
 	ExplorerModel explorer.ExplorerModel
+
+	Active views.View
+	Views  map[ViewID]views.View
 }
 
-func NewApp() AppModel {
+func NewApp(data *buffer.Data) AppModel {
+	em := explorer.NewExplorerModel(data)
+
 	views := make(map[ViewID]views.View, 1)
-	views[ExplorerView] = explorer.NewExplorerModel()
+	views[ExplorerView] = em
 
 	return AppModel{
-		active: views[ExplorerView],
+		Active:        views[ExplorerView],
+		Views:         views,
+		ExplorerModel: em,
 	}
 }
 
-func (AppModel) Init() tea.Cmd {
-	return tea.WindowSize()
+func (a AppModel) Init() tea.Cmd {
+	cmds := tea.Batch(
+		tea.WindowSize(),
+		a.Active.Init(),
+	)
+
+	return cmds
 }
 
 func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -37,12 +49,12 @@ func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds []tea.Cmd
 	)
 
-	a.active, cmd = a.active.Update(msg)
+	a.Active, cmd = a.Active.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return a, tea.Batch(cmds...)
 }
 
 func (a AppModel) View() string {
-	return a.active.View()
+	return a.Active.View()
 }

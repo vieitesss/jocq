@@ -1,10 +1,13 @@
 package explorer
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/vieitesss/jocq/internal/buffer"
 	"github.com/vieitesss/jocq/internal/tui/views"
 )
 
@@ -20,11 +23,11 @@ type ExplorerModel struct {
 	Out   viewport.Model
 	Input textinput.Model
 
-	text  string
-	ratio float32
+	Data  *buffer.Data
+	Ratio float32
 }
 
-func NewExplorerModel() ExplorerModel {
+func NewExplorerModel(data *buffer.Data) ExplorerModel {
 	in := viewport.New(0, 0)
 	in.Style = roundedBorder
 
@@ -34,19 +37,33 @@ func NewExplorerModel() ExplorerModel {
 	input := textinput.New()
 	input.Focus()
 	return ExplorerModel{
-		ratio: 0.5,
+		Ratio: 0.5,
 		In:    in,
 		Out:   out,
 		Input: input,
+		Data:  data,
 	}
 }
 
 func (e ExplorerModel) Init() tea.Cmd {
-	return e.Input.Cursor.BlinkCmd()
+	cmds := tea.Batch(
+		e.Input.Cursor.BlinkCmd(),
+		views.FetchRawData(e.Data),
+	)
+	return cmds
 }
 
 func (e ExplorerModel) Update(msg tea.Msg) (views.View, tea.Cmd) {
 	switch msg := msg.(type) {
+	case views.RawDataFetchedMsg:
+		lines := []string{}
+
+		for _, line := range msg.Content {
+			lines = append(lines, string(line))
+		}
+
+		e.In.SetContent(strings.Join(lines, ""))
+
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
@@ -54,14 +71,6 @@ func (e ExplorerModel) Update(msg tea.Msg) (views.View, tea.Cmd) {
 
 		case "enter":
 			e.Input.Reset()
-
-		case "backspace":
-			if len(e.text) > 0 {
-				e.text = e.text[:len(e.text)-1]
-			}
-
-		default:
-			e.text += msg.String()
 		}
 
 	case tea.WindowSizeMsg:
@@ -85,7 +94,7 @@ func (e ExplorerModel) View() string {
 }
 
 func (e ExplorerModel) viewportWidth(width int) int {
-	w := float32(width) * e.ratio
+	w := float32(width) * e.Ratio
 	return int(w)
 }
 

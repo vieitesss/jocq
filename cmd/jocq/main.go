@@ -1,19 +1,28 @@
 package main
 
 import (
-	_ "embed"
+	"context"
 	"fmt"
+	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/vieitesss/jocq/internal/tui"
+	"github.com/urfave/cli/v3"
 )
 
-//go:embed example.json
-var example string
-
 func main() {
-	_, err := tea.NewProgram(tui.NewApp(), tea.WithAltScreen()).Run()
-	if err != nil {
-		fmt.Printf("Error: %v", err)
+	cmd := &cli.Command{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "file",
+				Aliases: []string{"f"},
+				Value:   "",
+				Usage:   "The JSON file to provide as input.",
+			},
+		},
+		Action: WithFile,
+	}
+
+	if err := cmd.Run(context.Background(), os.Args); err != nil {
+		fmt.Println(err)
+		return
 	}
 }
