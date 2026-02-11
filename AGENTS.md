@@ -7,10 +7,10 @@ jocq is a Go-based Terminal User Interface for interactively querying JSON data 
 ## Architecture
 
 - The **buffer** is the central shared dependency. The scanner (ingestion) writes to it, the TUI reads from it. Both are started from `main.go` and connected only through the buffer.
-- Four packages live under `internal/`: `ingest` (JSON ingestion), `buffer` (thread-safe data store), `query` (gojq wrapper + scheduler), and `tui` (Bubble Tea application).
+- Core packages live under `internal/`: `ingest` (JSON ingestion), `buffer` (thread-safe data store), and `tui` (Bubble Tea application, including query scheduling and execution).
 - JSON is decoded once on ingestion. Queries run against pre-decoded Go values, never re-parsing raw bytes.
 - The query engine is **gojq** — full jq compatibility, pure Go, no CGo.
-- The TUI is built with **Bubble Tea** (Charmbracelet). It uses a view-based architecture: a root model routes between views, each view is a self-contained Bubble Tea model under `tui/views/`.
+- The TUI is built with **Bubble Tea** (Charmbracelet). It uses a view-based architecture: the root application in `internal/tui/app.go` routes between views, each view is a self-contained Bubble Tea model under `internal/tui/views/...`.
 - Queries are debounced and cancellable. A new keystroke cancels any in-flight query.
 - Current ingestion mode is synchronous full-file loading (up to 100MB) before starting the TUI.
 
