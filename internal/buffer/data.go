@@ -6,7 +6,7 @@ import (
 )
 
 type Data struct {
-	mu      sync.RWMutex // not useful for now, will be needed when async is implemented
+	mu      sync.RWMutex // guards concurrent access to Data fields; also supports future async ingestion
 	raw     [][]byte
 	decoded []any // raw to json data
 	bytes   uint64

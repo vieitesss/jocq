@@ -8,7 +8,7 @@ import (
 	"github.com/vieitesss/jocq/internal/buffer"
 )
 
-const SIZE_THRESHOLD = 100 * 1000 * 1000 // 100 MB
+const SizeThreshold = 100 * 1000 * 1000 // 100 MB
 
 type Scanner struct {
 	input *os.File
@@ -39,10 +39,10 @@ func (s Scanner) Scan() error {
 	}
 
 	if size == 0 {
-		return fmt.Errorf("The file %s is empty", s.input.Name())
+		return fmt.Errorf("file %s is empty", s.input.Name())
 	}
 
-	if size <= SIZE_THRESHOLD {
+	if size <= SizeThreshold {
 		d := make([]byte, int(size))
 		_, err = io.ReadFull(s.input, d)
 		if err != nil {
@@ -50,7 +50,7 @@ func (s Scanner) Scan() error {
 		}
 		s.data.Append(d)
 	} else {
-		return fmt.Errorf("File too big! (%d > %d)", size, SIZE_THRESHOLD)
+		return fmt.Errorf("file too big (%d > %d)", size, SizeThreshold)
 	}
 
 	return nil
