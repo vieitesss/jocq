@@ -14,9 +14,6 @@ const (
 )
 
 type AppModel struct {
-	// The views
-	ExplorerModel explorer.ExplorerModel
-
 	Active ViewID
 	Views  map[ViewID]views.View
 }
@@ -28,9 +25,8 @@ func NewApp(data *buffer.Data) AppModel {
 	views[ExplorerView] = em
 
 	return AppModel{
-		Active:        ExplorerView,
-		Views:         views,
-		ExplorerModel: em,
+		Active: ExplorerView,
+		Views:  views,
 	}
 }
 

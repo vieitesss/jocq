@@ -31,12 +31,18 @@ func (e ExplorerModel) handleDecodedDataFetchedMsg(msg views.DecodedDataFetchedM
 }
 
 func (e ExplorerModel) handleRawDataFetchedMsg(msg views.RawDataFetchedMsg) (ExplorerModel, tea.Cmd) {
-	lines := []string{}
+	var totalLen int
 	for _, line := range msg.Content {
-		lines = append(lines, string(line))
+		totalLen += len(line)
 	}
 
-	e.In.SetContent(strings.Join(lines, ""))
+	var builder strings.Builder
+	builder.Grow(totalLen)
+	for _, line := range msg.Content {
+		builder.Write(line)
+	}
+
+	e.In.SetContent(builder.String())
 
 	return e, nil
 }

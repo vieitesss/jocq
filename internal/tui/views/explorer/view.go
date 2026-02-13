@@ -7,6 +7,8 @@ import (
 
 var paneStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
 
+const viewportChromeHeight = 4
+
 var paneStyleBlur = paneStyle.BorderForeground(lipgloss.Color(theme.Gray))
 var paneStyleFocus = paneStyle.BorderForeground(lipgloss.Color(theme.Pink))
 
@@ -15,7 +17,7 @@ var titleStyleFocus = titleStyle.Foreground(lipgloss.Color(theme.Pink))
 var hintStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(theme.GrayMuted))
 
 func (e ExplorerModel) viewportHeight(height int) int {
-	return max(0, height-lipgloss.Height(e.Input.View())-4)
+	return max(0, height-lipgloss.Height(e.Input.View())-viewportChromeHeight)
 }
 
 func (e ExplorerModel) ExplorerView() string {
