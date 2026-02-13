@@ -95,19 +95,6 @@ func (e ExplorerModel) handleWindowSizeMsg(msg tea.WindowSizeMsg) (ExplorerModel
 	return e, nil
 }
 
-// func (e ExplorerModel) update(msg tea.Msg) (ExplorerModel, tea.Cmd) {
-// 	default:
-// 		// if !(keyMsg or mouseMsg)
-// 		e.Input, cmd = e.Input.Update(msg)
-// 		e.panes[InputPane] = e.Input
-// 		if cmd != nil {
-// 			cmds = append(cmds, cmd)
-// 		}
-// 	}
-
-// 	return e, tea.Batch(cmds...)
-// }
-
 func (e *ExplorerModel) updateFocusedPane(msg tea.Msg) tea.Cmd {
 	switch e.focused {
 	case InputPane:
