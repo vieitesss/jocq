@@ -9,7 +9,7 @@ import (
 func Execute(query string, data []any) ([]any, error) {
 	trimmed := strings.TrimSpace(query)
 	if trimmed == "" {
-		return []any{}, nil
+		return data, nil
 	}
 
 	q, err := gojq.Parse(trimmed)
