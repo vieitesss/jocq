@@ -2,16 +2,17 @@ package explorer
 
 import (
 	"github.com/charmbracelet/lipgloss"
+	"github.com/vieitesss/jocq/internal/tui/theme"
 )
 
 var paneStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
 
-var paneStyleBlur = paneStyle.BorderForeground(lipgloss.Color("240"))
-var paneStyleFocus = paneStyle.BorderForeground(lipgloss.Color("205"))
+var paneStyleBlur = paneStyle.BorderForeground(lipgloss.Color(theme.Gray))
+var paneStyleFocus = paneStyle.BorderForeground(lipgloss.Color(theme.Pink))
 
-var titleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("240"))
-var titleStyleFocus = titleStyle.Foreground(lipgloss.Color("205"))
-var hintStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
+var titleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(theme.Gray))
+var titleStyleFocus = titleStyle.Foreground(lipgloss.Color(theme.Pink))
+var hintStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(theme.GrayMuted))
 
 func (e ExplorerModel) viewportHeight(height int) int {
 	return max(0, height-lipgloss.Height(e.Input.View())-4)

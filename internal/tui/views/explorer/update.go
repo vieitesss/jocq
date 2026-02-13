@@ -6,7 +6,9 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/vieitesss/jocq/internal/query"
+	"github.com/vieitesss/jocq/internal/tui/theme"
 	"github.com/vieitesss/jocq/internal/tui/views"
 )
 
@@ -121,10 +123,20 @@ func (e *ExplorerModel) setFocusedPane(pane PaneID) {
 
 	if pane == InputPane {
 		e.Input.Focus()
+		e.setInputColor(theme.Pink)
 		return
 	}
 
 	e.Input.Blur()
+	e.setInputColor(theme.Gray)
+}
+
+func (e *ExplorerModel) setInputColor(color string) {
+	style := lipgloss.NewStyle().Foreground(lipgloss.Color(color))
+	e.Input.PromptStyle = style
+	e.Input.TextStyle = style
+	e.Input.PlaceholderStyle = style
+	e.Input.Cursor.Style = style
 }
 
 func (e *ExplorerModel) updateInputPlaceholder() {
