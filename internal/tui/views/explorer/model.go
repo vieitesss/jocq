@@ -1,14 +1,25 @@
 package explorer
 
 import (
-	"strings"
-
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/vieitesss/jocq/internal/buffer"
 	"github.com/vieitesss/jocq/internal/tui/views"
+)
+
+type PaneID int
+
+type Pane interface {
+	View() string
+}
+
+type PaneMap map[PaneID]Pane
+
+const (
+	InputPane PaneID = iota
+	InPane
+	OutPane
 )
 
 type ExplorerModel struct {
@@ -23,25 +34,35 @@ type ExplorerModel struct {
 	Out   viewport.Model
 	Input textinput.Model
 
+	panes   PaneMap
+	focused PaneID
+
 	Data  *buffer.Data
-	Ratio float32
+	ratio float32
+	query string
+	ready bool
 }
 
 func NewExplorerModel(data *buffer.Data) ExplorerModel {
 	in := viewport.New(0, 0)
-	in.Style = roundedBorder
-
 	out := viewport.New(0, 0)
-	out.Style = roundedBorder
 
 	input := textinput.New()
 	input.Focus()
+
+	panes := make(PaneMap, 3)
+	panes[InputPane] = input
+	panes[InPane] = in
+	panes[OutPane] = out
+
 	return ExplorerModel{
-		Ratio: 0.5,
-		In:    in,
-		Out:   out,
-		Input: input,
-		Data:  data,
+		ratio:   0.5,
+		In:      in,
+		Out:     out,
+		Input:   input,
+		panes:   panes,
+		Data:    data,
+		focused: InputPane,
 	}
 }
 
@@ -49,53 +70,39 @@ func (e ExplorerModel) Init() tea.Cmd {
 	cmds := tea.Batch(
 		e.Input.Cursor.BlinkCmd(),
 		views.FetchRawData(e.Data),
+		views.FetchDecodedData(e.Data),
 	)
 	return cmds
 }
 
 func (e ExplorerModel) Update(msg tea.Msg) (views.View, tea.Cmd) {
+	var (
+		cmd  tea.Cmd
+		cmds []tea.Cmd
+	)
+
 	switch msg := msg.(type) {
+	case views.DecodedDataFetchedMsg:
+		e, cmd = e.handleDecodedDataFetchedMsg(msg)
+
 	case views.RawDataFetchedMsg:
-		lines := []string{}
-
-		for _, line := range msg.Content {
-			lines = append(lines, string(line))
-		}
-
-		e.In.SetContent(strings.Join(lines, ""))
+		e, cmd = e.handleRawDataFetchedMsg(msg)
 
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c":
-			return e, tea.Quit
+		e, cmd = e.handleKeyMsg(msg)
 
-		case "enter":
-			e.Input.Reset()
-		}
+	case tea.MouseMsg:
+		e, cmd = e.handleMouseMsg(msg)
 
 	case tea.WindowSizeMsg:
-		inWidth := int(float32(msg.Width) * e.Ratio)
-		outWidth := msg.Width - inWidth
-
-		e.In.Height = e.viewportHeight(msg.Height)
-		e.In.Width = inWidth
-
-		e.Out.Height = e.viewportHeight(msg.Height)
-		e.Out.Width = outWidth
-
-		e.Input.Width = msg.Width
+		e, cmd = e.handleWindowSizeMsg(msg)
 	}
 
-	var cmd tea.Cmd
-	e.Input, cmd = e.Input.Update(msg)
+	cmds = append(cmds, cmd)
 
-	return e, cmd
+	return e, tea.Batch(cmds...)
 }
 
 func (e ExplorerModel) View() string {
 	return e.ExplorerView()
-}
-
-func (e ExplorerModel) viewportHeight(height int) int {
-	return height - lipgloss.Height(e.Input.View())
 }

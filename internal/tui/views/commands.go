@@ -14,3 +14,13 @@ func FetchRawData(data *buffer.Data) tea.Cmd {
 		}
 	}
 }
+
+func FetchDecodedData(data *buffer.Data) tea.Cmd {
+	return func() tea.Msg {
+		content := data.Decoded()
+
+		return DecodedDataFetchedMsg{
+			Content: content,
+		}
+	}
+}

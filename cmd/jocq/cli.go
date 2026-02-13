@@ -13,7 +13,9 @@ import (
 )
 
 func RunTUI(inputFile string) error {
-	opts := []tea.ProgramOption{tea.WithAltScreen()}
+	opts := []tea.ProgramOption{
+		tea.WithAltScreen(),
+	}
 
 	f, err := os.Open(inputFile)
 	if err != nil {

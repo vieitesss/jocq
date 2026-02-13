@@ -48,6 +48,16 @@ func (d *Data) Raw() [][]byte {
 	return snapshot
 }
 
+func (d *Data) Decoded() []any {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+
+	l := len(d.decoded)
+	snapshot := d.decoded[:l:l]
+
+	return snapshot
+}
+
 // This is a READ-ONLY function.
 // DO NOT MUTATE THE RETURNED SLICES.
 func (d *Data) RawRange(from, to int) [][]byte {
