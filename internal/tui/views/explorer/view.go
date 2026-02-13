@@ -31,13 +31,11 @@ func (e ExplorerModel) ExplorerView() string {
 	case InPane:
 		inTitle = titleStyleFocus.Render("Raw JSON")
 		outTitle = titleStyle.Render("Query Result [Tab]")
-		e.Input.Placeholder = "[S+Tab]"
 		inPaneStyle = paneStyleFocus
 
 	case OutPane:
 		outTitle = titleStyleFocus.Render("Query Result")
 		inTitle = titleStyle.Render("Raw JSON [S+Tab]")
-		e.Input.Placeholder = "[Tab]"
 		outPaneStyle = paneStyleFocus
 	}
 

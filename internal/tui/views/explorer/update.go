@@ -13,18 +13,17 @@ import (
 func (e ExplorerModel) handleDecodedDataFetchedMsg(msg views.DecodedDataFetchedMsg) (ExplorerModel, tea.Cmd) {
 	toRender, err := query.Execute(e.query, msg.Content)
 	if err != nil {
-		e.Out.SetContent(fmt.Sprint(err))
+		e.Out.SetContent(fmt.Sprintf("Error: %v", err))
 		return e, nil
 	}
 
 	content, err := json.MarshalIndent(toRender, "", "  ")
 	if err != nil {
-		e.Out.SetContent(fmt.Sprint(err))
+		e.Out.SetContent(fmt.Sprintf("Error: %v", err))
 		return e, nil
 	}
 
 	e.Out.SetContent(string(content))
-	e.panes[OutPane] = e.Out
 
 	return e, nil
 }
@@ -36,7 +35,6 @@ func (e ExplorerModel) handleRawDataFetchedMsg(msg views.RawDataFetchedMsg) (Exp
 	}
 
 	e.In.SetContent(strings.Join(lines, ""))
-	e.panes[InPane] = e.In
 
 	return e, nil
 }
@@ -86,9 +84,6 @@ func (e ExplorerModel) handleWindowSizeMsg(msg tea.WindowSizeMsg) (ExplorerModel
 	e.Out.Width = max(0, outWidth-2)
 
 	e.Input.Width = msg.Width
-	e.panes[InputPane] = e.Input
-	e.panes[InPane] = e.In
-	e.panes[OutPane] = e.Out
 
 	e.ready = true
 
@@ -100,19 +95,16 @@ func (e *ExplorerModel) updateFocusedPane(msg tea.Msg) tea.Cmd {
 	case InputPane:
 		var cmd tea.Cmd
 		e.Input, cmd = e.Input.Update(msg)
-		e.panes[InputPane] = e.Input
 		return cmd
 
 	case InPane:
 		var cmd tea.Cmd
 		e.In, cmd = e.In.Update(msg)
-		e.panes[InPane] = e.In
 		return cmd
 
 	case OutPane:
 		var cmd tea.Cmd
 		e.Out, cmd = e.Out.Update(msg)
-		e.panes[OutPane] = e.Out
 		return cmd
 	}
 
@@ -120,20 +112,30 @@ func (e *ExplorerModel) updateFocusedPane(msg tea.Msg) tea.Cmd {
 }
 
 func (e *ExplorerModel) setFocusedPane(pane PaneID) {
-	if _, ok := e.panes[pane]; !ok {
+	if pane < InputPane || pane > OutPane {
 		return
 	}
 
 	e.focused = pane
+	e.updateInputPlaceholder()
 
 	if pane == InputPane {
 		e.Input.Focus()
-		e.panes[InputPane] = e.Input
 		return
 	}
 
 	e.Input.Blur()
-	e.panes[InputPane] = e.Input
+}
+
+func (e *ExplorerModel) updateInputPlaceholder() {
+	switch e.focused {
+	case InPane:
+		e.Input.Placeholder = "[S+Tab]"
+	case OutPane:
+		e.Input.Placeholder = "[Tab]"
+	default:
+		e.Input.Placeholder = ""
+	}
 }
 
 func (e *ExplorerModel) focusPrevPane() {

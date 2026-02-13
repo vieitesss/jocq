@@ -10,12 +10,6 @@ import (
 
 type PaneID int
 
-type Pane interface {
-	View() string
-}
-
-type PaneMap map[PaneID]Pane
-
 const (
 	InputPane PaneID = iota
 	InPane
@@ -34,7 +28,6 @@ type ExplorerModel struct {
 	Out   viewport.Model
 	Input textinput.Model
 
-	panes   PaneMap
 	focused PaneID
 
 	Data  *buffer.Data
@@ -50,20 +43,18 @@ func NewExplorerModel(data *buffer.Data) ExplorerModel {
 	input := textinput.New()
 	input.Focus()
 
-	panes := make(PaneMap, 3)
-	panes[InputPane] = input
-	panes[InPane] = in
-	panes[OutPane] = out
-
-	return ExplorerModel{
+	e := ExplorerModel{
 		ratio:   0.5,
 		In:      in,
 		Out:     out,
 		Input:   input,
-		panes:   panes,
 		Data:    data,
 		focused: InputPane,
 	}
+
+	e.setFocusedPane(InputPane)
+
+	return e
 }
 
 func (e ExplorerModel) Init() tea.Cmd {
