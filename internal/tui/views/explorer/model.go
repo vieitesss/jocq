@@ -1,10 +1,13 @@
 package explorer
 
 import (
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/vieitesss/jocq/internal/buffer"
+	"github.com/vieitesss/jocq/internal/tui/theme"
 	"github.com/vieitesss/jocq/internal/tui/views"
 )
 
@@ -17,23 +20,25 @@ const (
 )
 
 type ExplorerModel struct {
-	// Each viewport (future component) will have:
-	// - width
-	// - height
-	// - content
-	// - mode
-	// - flags
+	// The source JSON.
+	In viewport.Model
 
-	In    viewport.Model
-	Out   viewport.Model
+	// The resulting JSON after executing a query.
+	Out viewport.Model
+
 	Input textinput.Model
+	Data  *buffer.Data
+
+	// The amount of terminal width (0 <= ratio <= 1) the In viewport has to take.
+	ratio float32
 
 	focused PaneID
-
-	Data  *buffer.Data
-	ratio float32
-	query string
-	ready bool
+	query   string
+	ready   bool
+	help    help.Model
+	keys    KeyMap
+	width   int
+	height  int
 }
 
 func NewExplorerModel(data *buffer.Data) ExplorerModel {
@@ -42,6 +47,16 @@ func NewExplorerModel(data *buffer.Data) ExplorerModel {
 
 	input := textinput.New()
 	input.Focus()
+	helpModel := help.New()
+	helpModel.Styles.ShortKey = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(theme.Gray))
+	helpModel.Styles.FullKey = helpModel.Styles.ShortKey
+	helpModel.Styles.ShortDesc = lipgloss.NewStyle().Foreground(lipgloss.Color(theme.GrayMuted))
+	helpModel.Styles.FullDesc = helpModel.Styles.ShortDesc
+	helpModel.Styles.ShortSeparator = lipgloss.NewStyle().Foreground(lipgloss.Color(theme.GrayMuted))
+	helpModel.Styles.FullSeparator = helpModel.Styles.ShortSeparator
+	helpModel.Styles.Ellipsis = helpModel.Styles.ShortSeparator
+	helpModel.ShortSeparator = "  •  "
+	helpModel.FullSeparator = "     "
 
 	e := ExplorerModel{
 		ratio:   0.5,
@@ -49,6 +64,8 @@ func NewExplorerModel(data *buffer.Data) ExplorerModel {
 		Out:     out,
 		Input:   input,
 		Data:    data,
+		help:    helpModel,
+		keys:    NewKeyMap(),
 		focused: InputPane,
 	}
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/vieitesss/jocq/internal/query"
@@ -53,21 +54,23 @@ func (e ExplorerModel) handleKeyMsg(msg tea.KeyMsg) (ExplorerModel, tea.Cmd) {
 		cmds []tea.Cmd
 	)
 
-	switch msg.String() {
-	case "ctrl+c":
+	switch {
+	case key.Matches(msg, e.keys.Quit):
 		return e, tea.Quit
 
-	case "tab":
+	case key.Matches(msg, e.keys.NextPane):
 		e.focusNextPane()
 
-	case "shift+tab":
+	case key.Matches(msg, e.keys.PrevPane):
 		e.focusPrevPane()
 
-	case "enter":
-		if e.focused == InputPane {
-			e.query = e.Input.Value()
-			cmds = append(cmds, views.FetchDecodedData(e.Data))
-		}
+	case key.Matches(msg, e.keys.RunQuery):
+		e.query = e.Input.Value()
+		cmds = append(cmds, views.FetchDecodedData(e.Data))
+
+	case key.Matches(msg, e.keys.ToggleHelp):
+		e.help.ShowAll = !e.help.ShowAll
+		e.resizeViewports(e.width, e.height)
 	}
 
 	cmd = e.updateFocusedPane(msg)
@@ -82,20 +85,27 @@ func (e ExplorerModel) handleMouseMsg(msg tea.MouseMsg) (ExplorerModel, tea.Cmd)
 }
 
 func (e ExplorerModel) handleWindowSizeMsg(msg tea.WindowSizeMsg) (ExplorerModel, tea.Cmd) {
-	inWidth := int(float32(msg.Width) * e.ratio)
-	outWidth := msg.Width - inWidth
-
-	e.In.Height = e.viewportHeight(msg.Height)
-	e.In.Width = max(0, inWidth-2)
-
-	e.Out.Height = e.viewportHeight(msg.Height)
-	e.Out.Width = max(0, outWidth-2)
-
-	e.Input.Width = msg.Width
+	e.width = msg.Width
+	e.height = msg.Height
+	e.help.Width = msg.Width
+	e.resizeViewports(msg.Width, msg.Height)
 
 	e.ready = true
 
 	return e, nil
+}
+
+func (e *ExplorerModel) resizeViewports(width, height int) {
+	inWidth := int(float32(width) * e.ratio)
+	outWidth := width - inWidth
+
+	e.In.Height = e.viewportHeight(height)
+	e.In.Width = max(0, inWidth-2)
+
+	e.Out.Height = e.viewportHeight(height)
+	e.Out.Width = max(0, outWidth-2)
+
+	e.Input.Width = width
 }
 
 func (e *ExplorerModel) updateFocusedPane(msg tea.Msg) tea.Cmd {
@@ -125,7 +135,11 @@ func (e *ExplorerModel) setFocusedPane(pane PaneID) {
 	}
 
 	e.focused = pane
+	e.keys.SetFocusMode(pane)
 	e.updateInputPlaceholder()
+	if e.ready {
+		e.resizeViewports(e.width, e.height)
+	}
 
 	if pane == InputPane {
 		e.Input.Focus()

@@ -7,17 +7,17 @@ import (
 
 var paneStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
 
-const viewportChromeHeight = 4
+const viewportChromeHeight = 3
 
 var paneStyleBlur = paneStyle.BorderForeground(lipgloss.Color(theme.Gray))
 var paneStyleFocus = paneStyle.BorderForeground(lipgloss.Color(theme.Pink))
 
 var titleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(theme.Gray))
 var titleStyleFocus = titleStyle.Foreground(lipgloss.Color(theme.Pink))
-var hintStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(theme.GrayMuted))
 
 func (e ExplorerModel) viewportHeight(height int) int {
-	return max(0, height-lipgloss.Height(e.Input.View())-viewportChromeHeight)
+	helpHeight := lipgloss.Height(e.help.View(e.keys))
+	return max(0, height-lipgloss.Height(e.Input.View())-viewportChromeHeight-helpHeight)
 }
 
 func (e ExplorerModel) ExplorerView() string {
@@ -53,11 +53,11 @@ func (e ExplorerModel) ExplorerView() string {
 
 	v := lipgloss.JoinVertical(lipgloss.Top,
 		e.Input.View(),
-		hintStyle.Render("Tab: cycle focus (Query -> Raw JSON -> Query Result)"),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			paneIn,
 			paneOut,
 		),
+		e.help.View(e.keys),
 	)
 
 	return v
