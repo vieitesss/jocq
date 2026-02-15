@@ -2,19 +2,22 @@ package explorer
 
 import (
 	"github.com/charmbracelet/lipgloss"
+	"github.com/vieitesss/jocq/internal/tui/theme"
 )
 
 var paneStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
 
-var paneStyleBlur = paneStyle.BorderForeground(lipgloss.Color("240"))
-var paneStyleFocus = paneStyle.BorderForeground(lipgloss.Color("205"))
+const viewportChromeHeight = 4
 
-var titleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("240"))
-var titleStyleFocus = titleStyle.Foreground(lipgloss.Color("205"))
-var hintStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
+var paneStyleBlur = paneStyle.BorderForeground(lipgloss.Color(theme.Gray))
+var paneStyleFocus = paneStyle.BorderForeground(lipgloss.Color(theme.Pink))
+
+var titleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(theme.Gray))
+var titleStyleFocus = titleStyle.Foreground(lipgloss.Color(theme.Pink))
+var hintStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(theme.GrayMuted))
 
 func (e ExplorerModel) viewportHeight(height int) int {
-	return max(0, height-lipgloss.Height(e.Input.View())-4)
+	return max(0, height-lipgloss.Height(e.Input.View())-viewportChromeHeight)
 }
 
 func (e ExplorerModel) ExplorerView() string {
@@ -31,13 +34,11 @@ func (e ExplorerModel) ExplorerView() string {
 	case InPane:
 		inTitle = titleStyleFocus.Render("Raw JSON")
 		outTitle = titleStyle.Render("Query Result [Tab]")
-		e.Input.Placeholder = "[S+Tab]"
 		inPaneStyle = paneStyleFocus
 
 	case OutPane:
 		outTitle = titleStyleFocus.Render("Query Result")
 		inTitle = titleStyle.Render("Raw JSON [S+Tab]")
-		e.Input.Placeholder = "[Tab]"
 		outPaneStyle = paneStyleFocus
 	}
 
