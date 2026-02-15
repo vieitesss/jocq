@@ -4,29 +4,65 @@
 
 *JSON Operations, Control & Query*
 
-> **The ultimate JSON control center for the terminal**: inspect, transform, generate commands, and monitor JSON streams in real time — all from a fast, keyboard-driven TUI.
+jocq is a Go-based terminal UI for interactively querying JSON files with full jq syntax (via gojq).
 
-⚠️ **Status:** Pre-release / work in progress. The application is not functional yet; this README describes the intended scope.
+## Status
 
----
+This project is a work in progress, but it is functional for file-based querying.
 
-## What it will do
+## Current Features
 
-This project aims to become a high-performance **Terminal User Interface (TUI)** for working with JSON in both **static files** and **live streams**.
+- File input through `--file` / `-f`
+- Synchronous ingestion of a single JSON file before the TUI starts
+- Input size guard (`<= 100 MB`) and explicit empty-file errors
+- Split layout with a query bar, raw JSON pane, and query result pane
+- Query execution with full jq language support through `gojq`
+- Pretty-printed JSON output in the result pane
+- Inline query error display in the result pane
+- Keyboard focus navigation across panes
 
-### 1) Analyze JSON files (static mode)
-- **Tree explorer** for deeply nested JSON (collapsible navigation)
-- **Search & filter** keys/values across large documents
-- **Structured edits** (update values, rename keys, delete nodes)
-- **Diff-friendly output** and optional formatting/pretty-print controls
+## Quick Start
 
-### 2) Monitor JSON streams (real-time mode)
-- **Follow** JSON lines / event streams (stdin, pipes, logs)
-- **Live filtering** (by key paths, regex, value predicates)
-- **Rate + throughput** visibility (basic observability for the stream)
-- **Fast rendering** for high-volume updates
+Requirements:
 
-### 3) Generate commands & transformations (power mode)
-- Generate **jq** (and/or other) commands from interactive selections
-- Copy-to-clipboard / export of transformations and filters
-- Saved “recipes” (reusable query + transform presets)
+- Go (as specified in `go.mod`)
+
+Run with the bundled example file:
+
+```bash
+go run ./cmd/jocq -f assets/example.json
+```
+
+Or with your own file:
+
+```bash
+go run ./cmd/jocq --file /path/to/data.json
+```
+
+If you use `just`:
+
+```bash
+just file
+```
+
+## Controls
+
+- `Tab`: move focus forward (Query -> Raw JSON -> Query Result)
+- `Shift+Tab`: move focus backward
+- `Enter` (from query input): run current jq query
+- `Ctrl+C`: quit
+
+## Notes and Limitations
+
+- Current mode is file-only; stream/pipeline input is not implemented yet.
+- Ingestion currently loads the full file into memory before launching the UI.
+- Query execution runs against decoded JSON values kept in memory.
+
+## Roadmap
+
+Planned areas include:
+
+- Better large-data ergonomics and progressive/async ingestion
+- Richer JSON exploration UX
+- Real-time stream mode
+- Additional query workflow improvements
