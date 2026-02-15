@@ -14,10 +14,7 @@ const (
 )
 
 type AppModel struct {
-	// The views
-	ExplorerModel explorer.ExplorerModel
-
-	Active views.View
+	Active ViewID
 	Views  map[ViewID]views.View
 }
 
@@ -28,16 +25,15 @@ func NewApp(data *buffer.Data) AppModel {
 	views[ExplorerView] = em
 
 	return AppModel{
-		Active:        views[ExplorerView],
-		Views:         views,
-		ExplorerModel: em,
+		Active: ExplorerView,
+		Views:  views,
 	}
 }
 
 func (a AppModel) Init() tea.Cmd {
 	cmds := tea.Batch(
 		tea.WindowSize(),
-		a.Active.Init(),
+		a.Views[a.Active].Init(),
 	)
 
 	return cmds
@@ -49,12 +45,12 @@ func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds []tea.Cmd
 	)
 
-	a.Active, cmd = a.Active.Update(msg)
+	a.Views[a.Active], cmd = a.Views[a.Active].Update(msg)
 	cmds = append(cmds, cmd)
 
 	return a, tea.Batch(cmds...)
 }
 
 func (a AppModel) View() string {
-	return a.Active.View()
+	return a.Views[a.Active].View()
 }
