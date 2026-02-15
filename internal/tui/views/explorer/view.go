@@ -15,9 +15,8 @@ var paneStyleFocus = paneStyle.BorderForeground(lipgloss.Color(theme.Pink))
 var titleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(theme.Gray))
 var titleStyleFocus = titleStyle.Foreground(lipgloss.Color(theme.Pink))
 
-func (e ExplorerModel) viewportHeight(height int) int {
-	helpHeight := lipgloss.Height(e.help.View(e.keys))
-	return max(0, height-lipgloss.Height(e.Input.View())-viewportChromeHeight-helpHeight)
+func (e ExplorerModel) viewportHeight(height, inputHeight, helpHeight int) int {
+	return max(0, height-inputHeight-viewportChromeHeight-helpHeight)
 }
 
 func (e ExplorerModel) ExplorerView() string {

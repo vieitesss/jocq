@@ -98,11 +98,14 @@ func (e ExplorerModel) handleWindowSizeMsg(msg tea.WindowSizeMsg) (ExplorerModel
 func (e *ExplorerModel) resizeViewports(width, height int) {
 	inWidth := int(float32(width) * e.ratio)
 	outWidth := width - inWidth
+	inputHeight := lipgloss.Height(e.Input.View())
+	helpHeight := lipgloss.Height(e.help.View(e.keys))
+	viewportHeight := e.viewportHeight(height, inputHeight, helpHeight)
 
-	e.In.Height = e.viewportHeight(height)
+	e.In.Height = viewportHeight
 	e.In.Width = max(0, inWidth-2)
 
-	e.Out.Height = e.viewportHeight(height)
+	e.Out.Height = viewportHeight
 	e.Out.Width = max(0, outWidth-2)
 
 	e.Input.Width = width

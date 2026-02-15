@@ -42,7 +42,7 @@ func NewKeyMap() KeyMap {
 		),
 		PageDown: key.NewBinding(
 			key.WithKeys("pgdown", "f", " "),
-			key.WithHelp("pgdn/f", "page down"),
+			key.WithHelp("pgdn/f/space", "page down"),
 		),
 		ToggleHelp: key.NewBinding(
 			key.WithKeys("?"),
