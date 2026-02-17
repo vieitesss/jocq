@@ -72,8 +72,8 @@ func TestExplorerViewShowsPendingCountInSourceTitle(t *testing.T) {
 	e.resizeViewports(80, 24)
 	e.In.SetNodes([]tree.Node{{Type: tree.ArrayElement, Value: "x"}})
 
-	e.In, _ = e.In.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'1'}})
-	e.In, _ = e.In.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'2'}})
+	e.In, _ = e.In.Update(runeKey('1'))
+	e.In, _ = e.In.Update(runeKey('2'))
 
 	view := ansi.Strip(e.ExplorerView())
 	if !strings.Contains(view, "12  •") {
@@ -90,4 +90,8 @@ func TestSourcePaneMetaWithoutPendingCountShowsOnlyPercent(t *testing.T) {
 	if meta != " 42%" {
 		t.Fatalf("expected percent-only metadata, got %q", meta)
 	}
+}
+
+func runeKey(r rune) tea.KeyMsg {
+	return tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{r}}
 }
