@@ -50,6 +50,7 @@ just file
 - `Tab`: move focus forward (Query -> Raw JSON -> Query Result)
 - `Shift+Tab`: move focus backward
 - `Enter` (from query input): run current jq query
+- `Enter` (from Raw JSON pane): collapse/expand object or array at cursor
 - `Ctrl+C`: quit
 
 ## Notes and Limitations

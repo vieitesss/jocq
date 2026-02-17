@@ -33,15 +33,25 @@ func RenderLine(node tree.Node, isCursor bool, width int) string {
 
 	switch node.Type {
 	case tree.ObjectOpen:
+		writeCollapseMarker(&builder, renderer, node.Collapsed)
 		writeKeyPrefix(&builder, renderer, node.Key)
-		builder.WriteString(renderer.render(bracketStyle, "{"))
+		if node.Collapsed {
+			builder.WriteString(renderer.render(bracketStyle, "{...}"))
+		} else {
+			builder.WriteString(renderer.render(bracketStyle, "{"))
+		}
 
 	case tree.ObjectClose:
 		builder.WriteString(renderer.render(bracketStyle, "}"))
 
 	case tree.ArrayOpen:
+		writeCollapseMarker(&builder, renderer, node.Collapsed)
 		writeKeyPrefix(&builder, renderer, node.Key)
-		builder.WriteString(renderer.render(bracketStyle, "["))
+		if node.Collapsed {
+			builder.WriteString(renderer.render(bracketStyle, "[...]"))
+		} else {
+			builder.WriteString(renderer.render(bracketStyle, "["))
+		}
 
 	case tree.ArrayClose:
 		builder.WriteString(renderer.render(bracketStyle, "]"))
@@ -92,6 +102,15 @@ func writeKeyPrefix(builder *strings.Builder, renderer lineRenderer, key string)
 
 	builder.WriteString(renderer.render(keyStyle, jsonString(key)))
 	builder.WriteString(renderer.render(punctuationStyle, ": "))
+}
+
+func writeCollapseMarker(builder *strings.Builder, renderer lineRenderer, collapsed bool) {
+	if collapsed {
+		builder.WriteString(renderer.render(punctuationStyle, "+ "))
+		return
+	}
+
+	builder.WriteString(renderer.render(punctuationStyle, "- "))
 }
 
 func renderScalar(renderer lineRenderer, value any) string {

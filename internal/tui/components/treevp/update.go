@@ -31,6 +31,9 @@ func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
 
 	case "G", "end":
 		m.GoToBottom()
+
+	case "enter":
+		m.ToggleCollapse()
 	}
 
 	return m, nil

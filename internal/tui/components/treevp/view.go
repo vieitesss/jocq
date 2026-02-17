@@ -30,12 +30,13 @@ func (m Model) View() string {
 
 	lines := make([]string, 0, m.Height)
 
-	if len(m.nodes) > 0 {
-		start := max(0, min(m.offset, len(m.nodes)-1))
-		end := min(len(m.nodes), start+m.Height)
+	if len(m.visible) > 0 {
+		start := max(0, min(m.offset, len(m.visible)-1))
+		end := min(len(m.visible), start+m.Height)
 
 		for i := start; i < end; i++ {
-			content := RenderLine(m.nodes[i], i == m.cursor, contentWidth)
+			nodeIndex := m.visible[i]
+			content := RenderLine(m.nodes[nodeIndex], i == m.cursor, contentWidth)
 			lines = append(lines, m.renderLineWithGutter(i, content, gutterWidth, separator))
 		}
 	}
@@ -73,11 +74,11 @@ func (m Model) renderLineWithGutter(index int, content string, width int, separa
 }
 
 func (m Model) gutterWidth() int {
-	if m.Width <= 1 || len(m.nodes) == 0 {
+	if m.Width <= 1 || len(m.visible) == 0 {
 		return 0
 	}
 
-	width := digitCount(max(1, len(m.nodes)-1))
+	width := digitCount(max(1, len(m.visible)-1))
 	maxAllowed := max(0, m.Width-1)
 	return min(width, maxAllowed)
 }
