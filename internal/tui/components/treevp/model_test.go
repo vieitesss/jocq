@@ -83,6 +83,26 @@ func TestCursorPercent(t *testing.T) {
 	}
 }
 
+func TestPendingCount(t *testing.T) {
+	m := New(40, 5)
+	m.SetNodes(testNodes(12))
+
+	if count, ok := m.PendingCount(); ok || count != 0 {
+		t.Fatalf("expected no pending count, got %d %v", count, ok)
+	}
+
+	m, _ = m.Update(runeKey('1'))
+	m, _ = m.Update(runeKey('2'))
+	if count, ok := m.PendingCount(); !ok || count != 12 {
+		t.Fatalf("expected pending count 12, got %d %v", count, ok)
+	}
+
+	m, _ = m.Update(runeKey('j'))
+	if count, ok := m.PendingCount(); ok || count != 0 {
+		t.Fatalf("expected pending count to be consumed, got %d %v", count, ok)
+	}
+}
+
 func runeKey(r rune) tea.KeyMsg {
 	return tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{r}}
 }

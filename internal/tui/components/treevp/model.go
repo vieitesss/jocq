@@ -171,6 +171,14 @@ func (m Model) CursorPercent() int {
 	return max(0, min(100, percent))
 }
 
+func (m Model) PendingCount() (int, bool) {
+	if !m.hasCount {
+		return 0, false
+	}
+
+	return m.pendingCount, true
+}
+
 func (m *Model) pushCountDigit(digit int) {
 	if !m.hasCount {
 		m.hasCount = true

@@ -53,20 +53,29 @@ func (e ExplorerModel) ExplorerView() string {
 		outPaneStyle = paneStyleFocus
 	}
 
-	inTitle := renderPaneTitle(inLabel, e.In.CursorPercent(), e.In.Width, inFocused)
-	outTitle := renderPaneTitle(outLabel, viewportPercent(e.Out), e.Out.Width, outFocused)
+	inCount, inHasCount := e.In.PendingCount()
+	inTitle := renderPaneTitle(inLabel, sourcePaneMeta(inCount, inHasCount, e.In.CursorPercent()), e.In.Width, inFocused)
+	outTitle := renderPaneTitle(outLabel, percentMeta(viewportPercent(e.Out)), e.Out.Width, outFocused)
 
 	inPaneHeight := e.In.Height + viewportChromeHeight
 	outPaneHeight := e.Out.Height + viewportChromeHeight
 
-	paneIn := inPaneStyle.Width(e.In.Width).Height(e.In.Height + 1).MaxHeight(inPaneHeight).Render(lipgloss.JoinVertical(lipgloss.Left,
-		inTitle,
-		e.In.View(),
-	))
-	paneOut := outPaneStyle.Width(e.Out.Width).Height(e.Out.Height + 1).MaxHeight(outPaneHeight).Render(lipgloss.JoinVertical(lipgloss.Left,
-		outTitle,
-		fitContentWidth(e.Out.View(), e.Out.Width),
-	))
+	paneIn := inPaneStyle.
+		Width(e.In.Width).
+		Height(e.In.Height + 1).
+		MaxHeight(inPaneHeight).
+		Render(lipgloss.JoinVertical(lipgloss.Left,
+			inTitle,
+			e.In.View(),
+		))
+	paneOut := outPaneStyle.
+		Width(e.Out.Width).
+		Height(e.Out.Height + 1).
+		MaxHeight(outPaneHeight).
+		Render(lipgloss.JoinVertical(lipgloss.Left,
+			outTitle,
+			fitContentWidth(e.Out.View(), e.Out.Width),
+		))
 	inputView := fitContentWidth(e.Input.View(), e.width)
 	helpView := fitContentWidth(e.help.View(e.keys), e.width)
 
@@ -82,7 +91,7 @@ func (e ExplorerModel) ExplorerView() string {
 	return v
 }
 
-func renderPaneTitle(label string, percent, width int, focused bool) string {
+func renderPaneTitle(label, meta string, width int, focused bool) string {
 	if width <= 0 {
 		return ""
 	}
@@ -95,9 +104,22 @@ func renderPaneTitle(label string, percent, width int, focused bool) string {
 	}
 
 	left := leftStyle.Render(label)
-	right := rightStyle.Render(fmt.Sprintf("%3d%%", clampPercent(percent)))
+	right := rightStyle.Render(meta)
 
 	return joinEdge(left, right, width)
+}
+
+func sourcePaneMeta(count int, hasCount bool, percent int) string {
+	percentPart := percentMeta(percent)
+	if !hasCount {
+		return percentPart
+	}
+
+	return fmt.Sprintf("%d  •  %s", count, percentPart)
+}
+
+func percentMeta(percent int) string {
+	return fmt.Sprintf("%3d%%", clampPercent(percent))
 }
 
 func joinEdge(left, right string, width int) string {

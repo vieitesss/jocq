@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/vieitesss/jocq/internal/tree"
@@ -61,5 +62,21 @@ func TestExplorerViewDoesNotOverflowWindowWidth(t *testing.T) {
 		if width := ansi.StringWidth(line); width > windowWidth {
 			t.Fatalf("expected line %d to fit width %d, got %d: %q", i, windowWidth, width, ansi.Strip(line))
 		}
+	}
+}
+
+func TestExplorerViewShowsPendingCountInSourceTitle(t *testing.T) {
+	e := NewExplorerModel(nil)
+	e.ready = true
+	e.help.Width = 80
+	e.resizeViewports(80, 24)
+	e.In.SetNodes([]tree.Node{{Type: tree.ArrayElement, Value: "x"}})
+
+	e.In, _ = e.In.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'1'}})
+	e.In, _ = e.In.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'2'}})
+
+	view := ansi.Strip(e.ExplorerView())
+	if !strings.Contains(view, "12  •") {
+		t.Fatalf("expected source title to include pending count metadata, got %q", view)
 	}
 }
