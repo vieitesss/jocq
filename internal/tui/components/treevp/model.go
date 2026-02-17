@@ -4,7 +4,7 @@ import (
 	"math"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/vieitesss/jocq/internal/tui/views/explorer/tree"
+	"github.com/vieitesss/jocq/internal/tree"
 )
 
 type Model struct {

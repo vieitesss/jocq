@@ -6,7 +6,6 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/vieitesss/jocq/internal/tui/theme"
-	"github.com/vieitesss/jocq/internal/tui/views/explorer/tree"
 )
 
 var (
@@ -36,7 +35,7 @@ func (m Model) View() string {
 		end := min(len(m.nodes), start+m.Height)
 
 		for i := start; i < end; i++ {
-			content := tree.RenderLine(m.nodes[i], i == m.cursor, contentWidth)
+			content := RenderLine(m.nodes[i], i == m.cursor, contentWidth)
 			lines = append(lines, m.renderLineWithGutter(i, content, gutterWidth, separator))
 		}
 	}

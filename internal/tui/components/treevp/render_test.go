@@ -1,15 +1,16 @@
-package tree
+package treevp
 
 import (
 	"strings"
 	"testing"
 
 	"github.com/charmbracelet/x/ansi"
+	"github.com/vieitesss/jocq/internal/tree"
 )
 
 func TestRenderLineDoesNotWrapLongValues(t *testing.T) {
-	node := Node{
-		Type:   KeyValue,
+	node := tree.Node{
+		Type:   tree.KeyValue,
 		Depth:  1,
 		Key:    "about",
 		Value:  strings.Repeat("a", 120),

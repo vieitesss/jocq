@@ -8,9 +8,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/vieitesss/jocq/internal/query"
+	"github.com/vieitesss/jocq/internal/tree"
 	"github.com/vieitesss/jocq/internal/tui/theme"
 	"github.com/vieitesss/jocq/internal/tui/views"
-	"github.com/vieitesss/jocq/internal/tui/views/explorer/tree"
 )
 
 func (e ExplorerModel) handleDecodedDataFetchedMsg(msg views.DecodedDataFetchedMsg) (ExplorerModel, tea.Cmd) {

@@ -7,9 +7,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/vieitesss/jocq/internal/buffer"
+	"github.com/vieitesss/jocq/internal/tui/components/treevp"
 	"github.com/vieitesss/jocq/internal/tui/theme"
 	"github.com/vieitesss/jocq/internal/tui/views"
-	"github.com/vieitesss/jocq/internal/tui/views/explorer/treevp"
 )
 
 type PaneID int

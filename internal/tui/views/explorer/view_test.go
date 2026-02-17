@@ -6,7 +6,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
-	"github.com/vieitesss/jocq/internal/tui/views/explorer/tree"
+	"github.com/vieitesss/jocq/internal/tree"
 )
 
 func TestFitContentWidthTruncatesAndPads(t *testing.T) {

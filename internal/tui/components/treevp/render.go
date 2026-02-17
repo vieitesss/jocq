@@ -1,4 +1,4 @@
-package tree
+package treevp
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/vieitesss/jocq/internal/tree"
 	"github.com/vieitesss/jocq/internal/tui/theme"
 )
 
@@ -23,7 +24,7 @@ var (
 	punctuationStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(theme.GrayMuted))
 )
 
-func RenderLine(node Node, isCursor bool, width int) string {
+func RenderLine(node tree.Node, isCursor bool, width int) string {
 	renderer := lineRenderer{cursor: isCursor}
 
 	var builder strings.Builder
@@ -31,25 +32,25 @@ func RenderLine(node Node, isCursor bool, width int) string {
 	builder.WriteString(renderer.plain(strings.Repeat(" ", max(0, node.Depth*indentSize))))
 
 	switch node.Type {
-	case ObjectOpen:
+	case tree.ObjectOpen:
 		writeKeyPrefix(&builder, renderer, node.Key)
 		builder.WriteString(renderer.render(bracketStyle, "{"))
 
-	case ObjectClose:
+	case tree.ObjectClose:
 		builder.WriteString(renderer.render(bracketStyle, "}"))
 
-	case ArrayOpen:
+	case tree.ArrayOpen:
 		writeKeyPrefix(&builder, renderer, node.Key)
 		builder.WriteString(renderer.render(bracketStyle, "["))
 
-	case ArrayClose:
+	case tree.ArrayClose:
 		builder.WriteString(renderer.render(bracketStyle, "]"))
 
-	case KeyValue:
+	case tree.KeyValue:
 		writeKeyPrefix(&builder, renderer, node.Key)
 		builder.WriteString(renderScalar(renderer, node.Value))
 
-	case ArrayElement:
+	case tree.ArrayElement:
 		builder.WriteString(renderScalar(renderer, node.Value))
 	}
 
@@ -119,6 +120,15 @@ func jsonValue(value any) string {
 	b, err := json.Marshal(value)
 	if err != nil {
 		return strconv.Quote("<invalid>")
+	}
+
+	return string(b)
+}
+
+func jsonString(value string) string {
+	b, err := json.Marshal(value)
+	if err != nil {
+		return strconv.Quote(value)
 	}
 
 	return string(b)

@@ -12,8 +12,8 @@ jocq is a Go-based Terminal User Interface for interactively querying JSON data 
 - The query engine is **gojq** — full jq compatibility, pure Go, no CGo.
 - The TUI is built with **Bubble Tea** (Charmbracelet). It uses a view-based architecture: the root application in `internal/tui/app.go` routes between views, each view is a self-contained Bubble Tea model under `internal/tui/views/...`.
 - Explorer source pane architecture:
-  - `internal/tui/views/explorer/tree` flattens decoded JSON into line-addressable nodes (path, depth, type, value metadata).
-  - `internal/tui/views/explorer/treevp` is a custom cursor viewport that maintains cursor + offset and keeps the current line visible.
+  - `internal/tree` flattens decoded JSON into line-addressable nodes (path, depth, type, value metadata).
+  - `internal/tui/components/treevp` is a custom cursor viewport that maintains cursor + offset and keeps the current line visible.
   - Source nodes are initialized once from decoded data and reused while navigating.
 - Queries are debounced and cancellable. A new keystroke cancels any in-flight query.
 - Current ingestion mode is synchronous full-file loading (up to 100MB) before starting the TUI.
