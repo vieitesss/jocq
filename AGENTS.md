@@ -26,6 +26,8 @@ jocq is a Go-based Terminal User Interface for interactively querying JSON data 
 - Keep source tree rendering stable and deterministic: object keys are sorted when flattened.
 - Cursor navigation behavior should feel editor-like:
   - There is always a highlighted current line in the source viewport.
+  - Relative line numbers are shown in the source gutter; the current line is always `0`.
+  - Numeric prefixes apply to `j/k` motions only (for example, `5j`, `12k`).
   - `j/k` and arrows move line-by-line.
   - `g` and `G` jump to top/bottom.
   - `ctrl+u` / `ctrl+d` move half-page up/down.
@@ -42,3 +44,5 @@ This section tracks problems encountered during development and how they were re
   - Long lines are ANSI-truncated and padded to viewport width to keep one logical node per visible row.
   - Full-line highlight is applied per rendered segment so ANSI resets from syntax colors do not break cursor background.
 - Pane sizing consistency fix: source/result panes are bounded to consistent heights in layout rendering.
+- Explorer pane headers show right-aligned progress percentages (source cursor progress and result scroll progress).
+- Width overflow fix: source/output panes, query input, and help footer are clipped/padded to terminal width to prevent horizontal overflow.
