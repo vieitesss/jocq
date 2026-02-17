@@ -40,39 +40,9 @@ func (m *Model) SetSize(width, height int) {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
-	keyMsg, ok := msg.(tea.KeyMsg)
-	if !ok {
-		return m, nil
-	}
-
-	key := keyMsg.String()
-	if len(key) == 1 && key[0] >= '0' && key[0] <= '9' {
-		m.pushCountDigit(int(key[0] - '0'))
-		return m, nil
-	}
-
-	if key != "j" && key != "k" && key != "up" && key != "down" {
-		m.clearCount()
-	}
-
-	switch key {
-	case "up", "k":
-		m.CursorUpN(m.consumeCount(1))
-
-	case "down", "j":
-		m.CursorDownN(m.consumeCount(1))
-
-	case "ctrl+u":
-		m.PageUp()
-
-	case "ctrl+d":
-		m.PageDown()
-
-	case "g", "home":
-		m.GoToTop()
-
-	case "G", "end":
-		m.GoToBottom()
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		return m.handleKeyMsg(msg)
 	}
 
 	return m, nil
@@ -177,34 +147,6 @@ func (m Model) PendingCount() (int, bool) {
 	}
 
 	return m.pendingCount, true
-}
-
-func (m *Model) pushCountDigit(digit int) {
-	if !m.hasCount {
-		m.hasCount = true
-		m.pendingCount = 0
-	}
-
-	m.pendingCount = m.pendingCount*10 + digit
-}
-
-func (m *Model) consumeCount(fallback int) int {
-	if !m.hasCount {
-		return fallback
-	}
-
-	count := m.pendingCount
-	m.clearCount()
-	return count
-}
-
-func (m *Model) clearCount() {
-	m.pendingCount = 0
-	m.hasCount = false
-}
-
-func (m *Model) ResetCount() {
-	m.clearCount()
 }
 
 func (m *Model) ensureCursorVisible() {
