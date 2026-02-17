@@ -119,7 +119,7 @@ func sourcePaneMeta(count int, hasCount bool, percent int) string {
 }
 
 func percentMeta(percent int) string {
-	return fmt.Sprintf("%3d%%", clampPercent(percent))
+	return fmt.Sprintf("%d%%", clampPercent(percent))
 }
 
 func joinEdge(left, right string, width int) string {
