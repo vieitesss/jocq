@@ -80,3 +80,14 @@ func TestExplorerViewShowsPendingCountInSourceTitle(t *testing.T) {
 		t.Fatalf("expected source title to include pending count metadata, got %q", view)
 	}
 }
+
+func TestSourcePaneMetaWithoutPendingCountShowsOnlyPercent(t *testing.T) {
+	meta := sourcePaneMeta(0, false, 42)
+	if strings.Contains(meta, "•") {
+		t.Fatalf("expected metadata without pending count to omit separator, got %q", meta)
+	}
+
+	if meta != " 42%" {
+		t.Fatalf("expected percent-only metadata, got %q", meta)
+	}
+}
