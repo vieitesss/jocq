@@ -8,6 +8,8 @@ type KeyMap struct {
 	RunQuery   key.Binding
 	ScrollUp   key.Binding
 	ScrollDown key.Binding
+	GoToTop    key.Binding
+	GoToBottom key.Binding
 	PageUp     key.Binding
 	PageDown   key.Binding
 	ToggleHelp key.Binding
@@ -30,19 +32,27 @@ func NewKeyMap() KeyMap {
 		),
 		ScrollUp: key.NewBinding(
 			key.WithKeys("up", "k"),
-			key.WithHelp("up/k", "scroll up"),
+			key.WithHelp("up/k", "move up"),
 		),
 		ScrollDown: key.NewBinding(
 			key.WithKeys("down", "j"),
-			key.WithHelp("down/j", "scroll down"),
+			key.WithHelp("down/j", "move down"),
+		),
+		GoToTop: key.NewBinding(
+			key.WithKeys("g"),
+			key.WithHelp("g", "top"),
+		),
+		GoToBottom: key.NewBinding(
+			key.WithKeys("G"),
+			key.WithHelp("G", "bottom"),
 		),
 		PageUp: key.NewBinding(
-			key.WithKeys("pgup", "b"),
-			key.WithHelp("pgup/b", "page up"),
+			key.WithKeys("ctrl+u"),
+			key.WithHelp("ctrl+u", "half page up"),
 		),
 		PageDown: key.NewBinding(
-			key.WithKeys("pgdown", "f", " "),
-			key.WithHelp("pgdn/f/space", "page down"),
+			key.WithKeys("ctrl+d"),
+			key.WithHelp("ctrl+d", "half page down"),
 		),
 		ToggleHelp: key.NewBinding(
 			key.WithKeys("?"),
@@ -61,6 +71,8 @@ func (k *KeyMap) SetFocusMode(pane PaneID) {
 	k.RunQuery.SetEnabled(inputFocused)
 	k.ScrollUp.SetEnabled(!inputFocused)
 	k.ScrollDown.SetEnabled(!inputFocused)
+	k.GoToTop.SetEnabled(pane == InPane)
+	k.GoToBottom.SetEnabled(pane == InPane)
 	k.PageUp.SetEnabled(!inputFocused)
 	k.PageDown.SetEnabled(!inputFocused)
 	k.ToggleHelp.SetEnabled(!inputFocused)
@@ -73,6 +85,8 @@ func (k KeyMap) ShortHelp() []key.Binding {
 		k.RunQuery,
 		k.ScrollUp,
 		k.ScrollDown,
+		k.GoToTop,
+		k.GoToBottom,
 		k.ToggleHelp,
 		k.Quit,
 	}
@@ -82,6 +96,6 @@ func (k KeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.NextPane, k.PrevPane},
 		{k.RunQuery, k.ToggleHelp, k.Quit},
-		{k.ScrollUp, k.ScrollDown, k.PageUp, k.PageDown},
+		{k.ScrollUp, k.ScrollDown, k.GoToTop, k.GoToBottom, k.PageUp, k.PageDown},
 	}
 }

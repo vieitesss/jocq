@@ -9,6 +9,7 @@ import (
 	"github.com/vieitesss/jocq/internal/buffer"
 	"github.com/vieitesss/jocq/internal/tui/theme"
 	"github.com/vieitesss/jocq/internal/tui/views"
+	"github.com/vieitesss/jocq/internal/tui/views/explorer/treevp"
 )
 
 type PaneID int
@@ -21,7 +22,7 @@ const (
 
 type ExplorerModel struct {
 	// The source JSON.
-	In viewport.Model
+	In treevp.Model
 
 	// The resulting JSON after executing a query.
 	Out viewport.Model
@@ -32,17 +33,18 @@ type ExplorerModel struct {
 	// The amount of terminal width (0 <= ratio <= 1) the In viewport has to take.
 	ratio float32
 
-	focused PaneID
-	query   string
-	ready   bool
-	help    help.Model
-	keys    KeyMap
-	width   int
-	height  int
+	focused      PaneID
+	query        string
+	ready        bool
+	sourceLoaded bool
+	help         help.Model
+	keys         KeyMap
+	width        int
+	height       int
 }
 
 func NewExplorerModel(data *buffer.Data) ExplorerModel {
-	in := viewport.New(0, 0)
+	in := treevp.New(0, 0)
 	out := viewport.New(0, 0)
 
 	input := textinput.New()
@@ -77,7 +79,6 @@ func NewExplorerModel(data *buffer.Data) ExplorerModel {
 func (e ExplorerModel) Init() tea.Cmd {
 	cmds := tea.Batch(
 		e.Input.Cursor.BlinkCmd(),
-		views.FetchRawData(e.Data),
 		views.FetchDecodedData(e.Data),
 	)
 	return cmds
@@ -92,9 +93,6 @@ func (e ExplorerModel) Update(msg tea.Msg) (views.View, tea.Cmd) {
 	switch msg := msg.(type) {
 	case views.DecodedDataFetchedMsg:
 		e, cmd = e.handleDecodedDataFetchedMsg(msg)
-
-	case views.RawDataFetchedMsg:
-		e, cmd = e.handleRawDataFetchedMsg(msg)
 
 	case tea.KeyMsg:
 		e, cmd = e.handleKeyMsg(msg)
