@@ -3,17 +3,22 @@ package explorer
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/vieitesss/jocq/internal/query"
+	"github.com/vieitesss/jocq/internal/tree"
 	"github.com/vieitesss/jocq/internal/tui/theme"
 	"github.com/vieitesss/jocq/internal/tui/views"
 )
 
 func (e ExplorerModel) handleDecodedDataFetchedMsg(msg views.DecodedDataFetchedMsg) (ExplorerModel, tea.Cmd) {
+	if !e.sourceLoaded {
+		e.In.SetNodes(tree.Flatten(msg.Content))
+		e.sourceLoaded = true
+	}
+
 	toRender, err := query.Execute(e.query, msg.Content)
 	if err != nil {
 		e.Out.SetContent(fmt.Sprintf("Error: %v", err))
@@ -27,23 +32,6 @@ func (e ExplorerModel) handleDecodedDataFetchedMsg(msg views.DecodedDataFetchedM
 	}
 
 	e.Out.SetContent(string(content))
-
-	return e, nil
-}
-
-func (e ExplorerModel) handleRawDataFetchedMsg(msg views.RawDataFetchedMsg) (ExplorerModel, tea.Cmd) {
-	var totalLen int
-	for _, line := range msg.Content {
-		totalLen += len(line)
-	}
-
-	var builder strings.Builder
-	builder.Grow(totalLen)
-	for _, line := range msg.Content {
-		builder.Write(line)
-	}
-
-	e.In.SetContent(builder.String())
 
 	return e, nil
 }
@@ -71,6 +59,18 @@ func (e ExplorerModel) handleKeyMsg(msg tea.KeyMsg) (ExplorerModel, tea.Cmd) {
 	case key.Matches(msg, e.keys.ToggleHelp):
 		e.help.ShowAll = !e.help.ShowAll
 		e.resizeViewports(e.width, e.height)
+
+	case key.Matches(msg, e.keys.PageUp):
+		if e.focused == OutPane {
+			e.Out.HalfPageUp()
+			return e, tea.Batch(cmds...)
+		}
+
+	case key.Matches(msg, e.keys.PageDown):
+		if e.focused == OutPane {
+			e.Out.HalfPageDown()
+			return e, tea.Batch(cmds...)
+		}
 	}
 
 	cmd = e.updateFocusedPane(msg)
@@ -102,8 +102,7 @@ func (e *ExplorerModel) resizeViewports(width, height int) {
 	helpHeight := lipgloss.Height(e.help.View(e.keys))
 	viewportHeight := e.viewportHeight(height, inputHeight, helpHeight)
 
-	e.In.Height = viewportHeight
-	e.In.Width = max(0, inWidth-2)
+	e.In.SetSize(max(0, inWidth-2), viewportHeight)
 
 	e.Out.Height = viewportHeight
 	e.Out.Width = max(0, outWidth-2)
@@ -135,6 +134,10 @@ func (e *ExplorerModel) updateFocusedPane(msg tea.Msg) tea.Cmd {
 func (e *ExplorerModel) setFocusedPane(pane PaneID) {
 	if pane < InputPane || pane > OutPane {
 		return
+	}
+
+	if pane != e.focused {
+		e.In.ResetCount()
 	}
 
 	e.focused = pane
