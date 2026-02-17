@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/vieitesss/jocq/internal/tree"
@@ -62,4 +63,35 @@ func TestExplorerViewDoesNotOverflowWindowWidth(t *testing.T) {
 			t.Fatalf("expected line %d to fit width %d, got %d: %q", i, windowWidth, width, ansi.Strip(line))
 		}
 	}
+}
+
+func TestExplorerViewShowsPendingCountInSourceTitle(t *testing.T) {
+	e := NewExplorerModel(nil)
+	e.ready = true
+	e.help.Width = 80
+	e.resizeViewports(80, 24)
+	e.In.SetNodes([]tree.Node{{Type: tree.ArrayElement, Value: "x"}})
+
+	e.In, _ = e.In.Update(runeKey('1'))
+	e.In, _ = e.In.Update(runeKey('2'))
+
+	view := ansi.Strip(e.ExplorerView())
+	if !strings.Contains(view, "12  •") {
+		t.Fatalf("expected source title to include pending count metadata, got %q", view)
+	}
+}
+
+func TestSourcePaneMetaWithoutPendingCountShowsOnlyPercent(t *testing.T) {
+	meta := sourcePaneMeta(0, false, 42)
+	if strings.Contains(meta, "•") {
+		t.Fatalf("expected metadata without pending count to omit separator, got %q", meta)
+	}
+
+	if meta != "42%" {
+		t.Fatalf("expected percent-only metadata, got %q", meta)
+	}
+}
+
+func runeKey(r rune) tea.KeyMsg {
+	return tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{r}}
 }

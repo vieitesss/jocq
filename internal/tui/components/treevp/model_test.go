@@ -32,20 +32,20 @@ func TestCountedUpMotionWithJK(t *testing.T) {
 	}
 }
 
-func TestCountOnlyAppliesToJK(t *testing.T) {
+func TestCountAlsoAppliesToArrowKeys(t *testing.T) {
 	m := New(40, 5)
 	m.SetNodes(testNodes(12))
 
 	m, _ = m.Update(runeKey('5'))
 	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyDown})
 
-	if m.cursor != 1 {
-		t.Fatalf("expected down arrow to move one line, got %d", m.cursor)
+	if m.cursor != 5 {
+		t.Fatalf("expected down arrow to consume count and move 5 lines, got %d", m.cursor)
 	}
 
 	m, _ = m.Update(runeKey('j'))
-	if m.cursor != 2 {
-		t.Fatalf("expected trailing j to move one line, got %d", m.cursor)
+	if m.cursor != 6 {
+		t.Fatalf("expected trailing j to move one line after count consumption, got %d", m.cursor)
 	}
 }
 
@@ -80,6 +80,26 @@ func TestCursorPercent(t *testing.T) {
 	middle.CursorDownN(5)
 	if got := middle.CursorPercent(); got != 50 {
 		t.Fatalf("expected middle cursor percent to be 50, got %d", got)
+	}
+}
+
+func TestPendingCount(t *testing.T) {
+	m := New(40, 5)
+	m.SetNodes(testNodes(12))
+
+	if count, ok := m.PendingCount(); ok || count != 0 {
+		t.Fatalf("expected no pending count, got %d %v", count, ok)
+	}
+
+	m, _ = m.Update(runeKey('1'))
+	m, _ = m.Update(runeKey('2'))
+	if count, ok := m.PendingCount(); !ok || count != 12 {
+		t.Fatalf("expected pending count 12, got %d %v", count, ok)
+	}
+
+	m, _ = m.Update(runeKey('j'))
+	if count, ok := m.PendingCount(); ok || count != 0 {
+		t.Fatalf("expected pending count to be consumed, got %d %v", count, ok)
 	}
 }
 
