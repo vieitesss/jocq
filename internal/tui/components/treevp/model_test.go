@@ -32,20 +32,20 @@ func TestCountedUpMotionWithJK(t *testing.T) {
 	}
 }
 
-func TestCountOnlyAppliesToJK(t *testing.T) {
+func TestCountAlsoAppliesToArrowKeys(t *testing.T) {
 	m := New(40, 5)
 	m.SetNodes(testNodes(12))
 
 	m, _ = m.Update(runeKey('5'))
 	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyDown})
 
-	if m.cursor != 1 {
-		t.Fatalf("expected down arrow to move one line, got %d", m.cursor)
+	if m.cursor != 5 {
+		t.Fatalf("expected down arrow to consume count and move 5 lines, got %d", m.cursor)
 	}
 
 	m, _ = m.Update(runeKey('j'))
-	if m.cursor != 2 {
-		t.Fatalf("expected trailing j to move one line, got %d", m.cursor)
+	if m.cursor != 6 {
+		t.Fatalf("expected trailing j to move one line after count consumption, got %d", m.cursor)
 	}
 }
 

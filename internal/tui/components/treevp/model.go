@@ -51,16 +51,16 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m, nil
 	}
 
-	if key != "j" && key != "k" {
+	if key != "j" && key != "k" && key != "up" && key != "down" {
 		m.clearCount()
 	}
 
 	switch key {
 	case "up", "k":
-		m.CursorUpN(m.consumeCount(1, key == "k"))
+		m.CursorUpN(m.consumeCount(1))
 
 	case "down", "j":
-		m.CursorDownN(m.consumeCount(1, key == "j"))
+		m.CursorDownN(m.consumeCount(1))
 
 	case "ctrl+u":
 		m.PageUp()
@@ -188,8 +188,8 @@ func (m *Model) pushCountDigit(digit int) {
 	m.pendingCount = m.pendingCount*10 + digit
 }
 
-func (m *Model) consumeCount(fallback int, allow bool) int {
-	if !allow || !m.hasCount {
+func (m *Model) consumeCount(fallback int) int {
+	if !m.hasCount {
 		return fallback
 	}
 
