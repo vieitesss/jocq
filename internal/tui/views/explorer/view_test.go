@@ -87,7 +87,7 @@ func TestSourcePaneMetaWithoutPendingCountShowsOnlyPercent(t *testing.T) {
 		t.Fatalf("expected metadata without pending count to omit separator, got %q", meta)
 	}
 
-	if meta != " 42%" {
+	if meta != "42%" {
 		t.Fatalf("expected percent-only metadata, got %q", meta)
 	}
 }
