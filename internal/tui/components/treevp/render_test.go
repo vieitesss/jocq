@@ -26,3 +26,36 @@ func TestRenderLineDoesNotWrapLongValues(t *testing.T) {
 		t.Fatalf("expected width 40, got %d", got)
 	}
 }
+
+func TestRenderLineCollapsedContainerSummary(t *testing.T) {
+	node := tree.Node{
+		Type:      tree.ObjectOpen,
+		Depth:     1,
+		Key:       "user",
+		Collapsed: true,
+		IsLast:    true,
+	}
+
+	line := ansi.Strip(RenderLine(node, false, 80))
+	if !strings.Contains(line, "+ ") {
+		t.Fatalf("expected collapsed marker in line, got %q", line)
+	}
+
+	if !strings.Contains(line, "{...}") {
+		t.Fatalf("expected collapsed object summary, got %q", line)
+	}
+}
+
+func TestRenderLineCollapsedArraySummary(t *testing.T) {
+	node := tree.Node{
+		Type:      tree.ArrayOpen,
+		Depth:     1,
+		Collapsed: true,
+		IsLast:    true,
+	}
+
+	line := ansi.Strip(RenderLine(node, false, 80))
+	if !strings.Contains(line, "[...]") {
+		t.Fatalf("expected collapsed array summary, got %q", line)
+	}
+}

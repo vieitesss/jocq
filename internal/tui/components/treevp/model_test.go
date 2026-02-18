@@ -103,6 +103,88 @@ func TestPendingCount(t *testing.T) {
 	}
 }
 
+func TestToggleCollapseOnContainer(t *testing.T) {
+	m := New(80, 8)
+	m.SetNodes(tree.Flatten([]any{
+		map[string]any{
+			"a": map[string]any{"b": 1.0},
+			"c": 2.0,
+		},
+	}))
+
+	if len(m.visible) != len(m.nodes) {
+		t.Fatalf("expected all nodes to be visible initially, got %d of %d", len(m.visible), len(m.nodes))
+	}
+
+	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	node, ok := m.CursorNode()
+	if !ok {
+		t.Fatalf("expected cursor node after collapsing")
+	}
+
+	if !node.Collapsed {
+		t.Fatalf("expected root container to be collapsed")
+	}
+
+	if len(m.visible) != 1 {
+		t.Fatalf("expected collapsed root to show a single line, got %d", len(m.visible))
+	}
+
+	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	node, ok = m.CursorNode()
+	if !ok {
+		t.Fatalf("expected cursor node after expanding")
+	}
+
+	if node.Collapsed {
+		t.Fatalf("expected root container to be expanded")
+	}
+
+	if len(m.visible) != len(m.nodes) {
+		t.Fatalf("expected all nodes visible after expanding, got %d of %d", len(m.visible), len(m.nodes))
+	}
+}
+
+func TestNavigationSkipsCollapsedChildren(t *testing.T) {
+	m := New(80, 8)
+	m.SetNodes(tree.Flatten([]any{
+		map[string]any{
+			"a": map[string]any{"b": 1.0},
+			"c": 2.0,
+		},
+	}))
+
+	m.CursorDownN(1) // ".a" object
+	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	m.CursorDown()
+
+	node, ok := m.CursorNode()
+	if !ok {
+		t.Fatalf("expected cursor node after moving down")
+	}
+
+	if node.Path != ".c" {
+		t.Fatalf("expected cursor to skip collapsed children and land on .c, got %q", node.Path)
+	}
+}
+
+func TestToggleCollapseOnArray(t *testing.T) {
+	m := New(80, 8)
+	m.SetNodes(tree.Flatten([]any{
+		[]any{1.0, 2.0, 3.0},
+	}))
+
+	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	node, ok := m.CursorNode()
+	if !ok {
+		t.Fatalf("expected cursor node after collapsing")
+	}
+
+	if node.Type != tree.ArrayOpen || !node.Collapsed {
+		t.Fatalf("expected collapsed root array node, got %+v", node)
+	}
+}
+
 func runeKey(r rune) tea.KeyMsg {
 	return tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{r}}
 }
