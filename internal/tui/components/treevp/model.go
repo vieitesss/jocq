@@ -27,8 +27,9 @@ func New(width, height int) Model {
 	}
 }
 
+// SetNodes takes ownership of the provided slice.
+// Callers must not mutate it after this call.
 func (m *Model) SetNodes(nodes []tree.Node) {
-	// SetNodes takes ownership of the provided slice. Callers must not mutate it after this call.
 	m.nodes = nodes
 	m.rebuildVisible()
 	m.cursor = 0
