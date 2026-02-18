@@ -14,7 +14,7 @@ This project is a work in progress, but currently functional for file-based JSON
 
 - File input through `--file` / `-f`
 - Synchronous ingestion of a single JSON file before the TUI starts
-- Input size guard (`<= 100 MB`) and explicit empty-file errors
+- Input size guard (`<= 100 MB`) with explicit empty-file and invalid-JSON ingestion errors
 - Split layout with a query bar, source explorer pane, result pane, and help bar
 - Source explorer built from decoded JSON values (no raw-text renderer)
 - Deterministic source tree ordering (object keys are sorted)
@@ -70,7 +70,6 @@ just file
 - Ingestion currently loads the full file into memory before launching the UI.
 - Query execution runs against decoded JSON values kept in memory.
 - Query execution is currently manual (`Enter`), not debounced/cancellable yet.
-- JSON decode failures are not surfaced as ingestion errors today; undecodable input is stored as `null` in decoded data.
 
 ## Roadmap
 
