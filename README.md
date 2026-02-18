@@ -21,7 +21,8 @@ This project is a work in progress, but currently functional for file-based JSON
 - Collapsible objects/arrays in the source explorer (`Enter` to toggle; collapsed containers render as `{...}` / `[...]`)
 - Relative line numbers in the source gutter (current line is always `0`)
 - Editor-like navigation in the source pane (`j`/`k`, arrows, `g`/`G`, `ctrl+u`/`ctrl+d`, numeric prefixes)
-- `{` / `}` to jump to the previous/next container node in the source pane
+- `{` / `}` to jump to the previous/next object node in the source pane
+- `[` / `]` to jump to the previous/next array node in the source pane
 - Pending motion count shown in the source pane title while typing a numeric prefix
 - Full jq query execution through `gojq`
 - Bounded LRU cache (256 entries) for compiled jq programs; both valid programs and parse errors are cached
@@ -63,7 +64,8 @@ just file
 - `j` / `k` and `Up` / `Down` (source/result panes): line-by-line movement
 - `[count]j` / `[count]k` (and arrow variants): counted line movement in source pane
 - `g` / `G` or `Home` / `End` (source pane): jump to top / bottom
-- `{` / `}` (source pane): jump to previous / next container node
+- `{` / `}` (source pane): jump to previous / next object node
+- `[` / `]` (source pane): jump to previous / next array node
 - `ctrl+u` / `ctrl+d` (source/result panes): half-page movement
 - `?` (source/result panes): toggle full help
 - `Ctrl+C`: quit
@@ -73,7 +75,7 @@ just file
 - Current mode is file-only; stream/pipeline input is not implemented yet.
 - Ingestion currently loads the full file into memory before launching the UI.
 - Query execution runs against decoded JSON values kept in memory.
-- Query execution is currently manual (`Enter`), not debounced/cancellable yet.
+- Query execution is manual (`Enter` in the query input); it runs synchronously on the Bubble Tea event loop with no debouncing or cancellation.
 
 ## Roadmap
 
