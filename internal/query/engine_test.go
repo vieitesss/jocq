@@ -64,21 +64,92 @@ func TestExecuteCachesParseError(t *testing.T) {
 	}
 }
 
+func TestExecuteEvictsLeastRecentlyUsedProgramWhenCapacityExceeded(t *testing.T) {
+	resetProgramCacheWithCapacity(2)
+	t.Cleanup(resetProgramCache)
+
+	data := []any{map[string]any{"a": 1.0, "b": 2.0, "c": 3.0}}
+
+	if _, err := Execute(".a", data); err != nil {
+		t.Fatalf("unexpected error executing .a: %v", err)
+	}
+	if _, err := Execute(".b", data); err != nil {
+		t.Fatalf("unexpected error executing .b: %v", err)
+	}
+	if _, err := Execute(".c", data); err != nil {
+		t.Fatalf("unexpected error executing .c: %v", err)
+	}
+
+	if _, ok := getCachedProgram(".a"); ok {
+		t.Fatalf("expected .a to be evicted as least recently used entry")
+	}
+
+	if _, ok := getCachedProgram(".b"); !ok {
+		t.Fatalf("expected .b to remain cached")
+	}
+	if _, ok := getCachedProgram(".c"); !ok {
+		t.Fatalf("expected .c to remain cached")
+	}
+}
+
+func TestExecuteCacheHitRefreshesRecency(t *testing.T) {
+	resetProgramCacheWithCapacity(2)
+	t.Cleanup(resetProgramCache)
+
+	data := []any{map[string]any{"a": 1.0, "b": 2.0, "c": 3.0}}
+
+	if _, err := Execute(".a", data); err != nil {
+		t.Fatalf("unexpected error executing .a: %v", err)
+	}
+	if _, err := Execute(".b", data); err != nil {
+		t.Fatalf("unexpected error executing .b: %v", err)
+	}
+	// Refresh .a so .b becomes the least recently used entry.
+	if _, err := Execute(".a", data); err != nil {
+		t.Fatalf("unexpected error executing .a (refresh): %v", err)
+	}
+	if _, err := Execute(".c", data); err != nil {
+		t.Fatalf("unexpected error executing .c: %v", err)
+	}
+
+	if _, ok := getCachedProgram(".b"); ok {
+		t.Fatalf("expected .b to be evicted after .a recency refresh")
+	}
+	if _, ok := getCachedProgram(".a"); !ok {
+		t.Fatalf("expected .a to stay cached after recency refresh")
+	}
+	if _, ok := getCachedProgram(".c"); !ok {
+		t.Fatalf("expected .c to be cached")
+	}
+}
+
 func resetProgramCache() {
 	programCacheMu.Lock()
-	programCache = make(map[string]cachedProgram)
+	programCache = newLRUProgramCache(defaultProgramCacheCapacity)
+	programCacheMu.Unlock()
+}
+
+func resetProgramCacheWithCapacity(capacity int) {
+	programCacheMu.Lock()
+	programCache = newLRUProgramCache(capacity)
 	programCacheMu.Unlock()
 }
 
 func programCacheSize() int {
-	programCacheMu.RLock()
-	defer programCacheMu.RUnlock()
-	return len(programCache)
+	programCacheMu.Lock()
+	defer programCacheMu.Unlock()
+	return programCache.len()
 }
 
 func getCachedProgram(query string) (cachedProgram, bool) {
-	programCacheMu.RLock()
-	defer programCacheMu.RUnlock()
-	cached, ok := programCache[query]
-	return cached, ok
+	programCacheMu.Lock()
+	defer programCacheMu.Unlock()
+
+	elem, ok := programCache.items[query]
+	if !ok {
+		return cachedProgram{}, false
+	}
+
+	item := elem.Value.(cacheItem)
+	return item.value, true
 }
