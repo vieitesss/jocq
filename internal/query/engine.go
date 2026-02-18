@@ -130,10 +130,6 @@ func getProgram(query string) (*gojq.Code, error) {
 	q, err := gojq.Parse(query)
 	if err != nil {
 		programCacheMu.Lock()
-		if cached, ok := programCache.get(query); ok {
-			programCacheMu.Unlock()
-			return cached.code, cached.err
-		}
 		programCache.put(query, cachedProgram{err: err})
 		programCacheMu.Unlock()
 		return nil, err
