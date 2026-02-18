@@ -15,6 +15,10 @@ type KeyMap struct {
 	ToggleNode key.Binding
 	ToggleHelp key.Binding
 	Quit       key.Binding
+	NextObject key.Binding
+	PrevObject key.Binding
+	NextArray  key.Binding
+	PrevArray  key.Binding
 }
 
 func NewKeyMap() KeyMap {
@@ -67,6 +71,22 @@ func NewKeyMap() KeyMap {
 			key.WithKeys("ctrl+c"),
 			key.WithHelp("ctrl+c", "quit"),
 		),
+		NextObject: key.NewBinding(
+			key.WithKeys("}"),
+			key.WithHelp("}", "next object"),
+		),
+		PrevObject: key.NewBinding(
+			key.WithKeys("{"),
+			key.WithHelp("{", "prev object"),
+		),
+		NextArray: key.NewBinding(
+			key.WithKeys("]"),
+			key.WithHelp("]", "next array"),
+		),
+		PrevArray: key.NewBinding(
+			key.WithKeys("["),
+			key.WithHelp("[", "prev array"),
+		),
 	}
 }
 
@@ -82,6 +102,10 @@ func (k *KeyMap) SetFocusMode(pane PaneID) {
 	k.PageDown.SetEnabled(!inputFocused)
 	k.ToggleNode.SetEnabled(pane == InPane)
 	k.ToggleHelp.SetEnabled(!inputFocused)
+	k.NextObject.SetEnabled(pane == InPane)
+	k.PrevObject.SetEnabled(pane == InPane)
+	k.NextArray.SetEnabled(pane == InPane)
+	k.PrevArray.SetEnabled(pane == InPane)
 }
 
 func (k KeyMap) ShortHelp() []key.Binding {
@@ -104,5 +128,6 @@ func (k KeyMap) FullHelp() [][]key.Binding {
 		{k.NextPane, k.PrevPane},
 		{k.RunQuery, k.ToggleHelp, k.Quit},
 		{k.ScrollUp, k.ScrollDown, k.GoToTop, k.GoToBottom, k.PageUp, k.PageDown, k.ToggleNode},
+		{k.PrevObject, k.NextObject, k.PrevArray, k.NextArray},
 	}
 }

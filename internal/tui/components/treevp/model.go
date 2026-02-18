@@ -154,6 +154,35 @@ func (m Model) PendingCount() (int, bool) {
 	return m.pendingCount, true
 }
 
+func (m *Model) nextMatch(match func(tree.Node) bool) {
+	for i := m.cursor + 1; i < len(m.visible); i++ {
+		if match(m.nodes[m.visible[i]]) {
+			m.cursor = i
+			m.ensureCursorVisible()
+			return
+		}
+	}
+}
+
+func (m *Model) prevMatch(match func(tree.Node) bool) {
+	for i := m.cursor - 1; i >= 0; i-- {
+		if match(m.nodes[m.visible[i]]) {
+			m.cursor = i
+			m.ensureCursorVisible()
+			return
+		}
+	}
+}
+
+func (m *Model) NextObject() {
+	m.nextMatch(func(n tree.Node) bool { return n.Type == tree.ObjectOpen })
+}
+func (m *Model) PrevObject() {
+	m.prevMatch(func(n tree.Node) bool { return n.Type == tree.ObjectOpen })
+}
+func (m *Model) NextArray() { m.nextMatch(func(n tree.Node) bool { return n.Type == tree.ArrayOpen }) }
+func (m *Model) PrevArray() { m.prevMatch(func(n tree.Node) bool { return n.Type == tree.ArrayOpen }) }
+
 func (m *Model) ToggleCollapse() bool {
 	nodeIndex, ok := m.cursorNodeIndex()
 	if !ok {
