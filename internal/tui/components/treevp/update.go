@@ -34,6 +34,18 @@ func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
 
 	case "enter":
 		m.ToggleCollapse()
+
+	case "}":
+		m.NextObject()
+
+	case "{":
+		m.PrevObject()
+
+	case "]":
+		m.NextArray()
+
+	case "[":
+		m.PrevArray()
 	}
 
 	return m, nil
