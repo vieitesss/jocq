@@ -28,8 +28,8 @@ func New(width, height int) Model {
 }
 
 func (m *Model) SetNodes(nodes []tree.Node) {
-	m.nodes = make([]tree.Node, len(nodes))
-	copy(m.nodes, nodes)
+	// SetNodes takes ownership of the provided slice. Callers must not mutate it after this call.
+	m.nodes = nodes
 	m.rebuildVisible()
 	m.cursor = 0
 	m.offset = 0
