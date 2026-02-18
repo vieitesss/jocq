@@ -48,7 +48,9 @@ func (s Scanner) Scan() error {
 		if err != nil {
 			return err
 		}
-		s.data.Append(d)
+		if err := s.data.Append(d); err != nil {
+			return fmt.Errorf("invalid json in %s: %w", s.input.Name(), err)
+		}
 	} else {
 		return fmt.Errorf("file too big (%d > %d)", size, SizeThreshold)
 	}

@@ -2,6 +2,7 @@ package buffer
 
 import (
 	"encoding/json"
+	"fmt"
 	"sync"
 )
 
@@ -19,14 +20,11 @@ func NewData() *Data {
 	}
 }
 
-// Add data both to the raw and decoded arrays
-func (d *Data) Append(raw []byte) {
-	// What will be added to "decoded"
+// Append stores raw bytes and decoded JSON value.
+func (d *Data) Append(raw []byte) error {
 	var v any
 	if err := json.Unmarshal(raw, &v); err != nil {
-		// It's preferred to have the raw data, even if
-		// the decoded data is not successfully shown.
-		v = nil
+		return fmt.Errorf("decode json: %w", err)
 	}
 
 	d.mu.Lock()
@@ -34,6 +32,8 @@ func (d *Data) Append(raw []byte) {
 	d.decoded = append(d.decoded, v)
 	d.bytes += uint64(len(raw))
 	d.mu.Unlock()
+
+	return nil
 }
 
 // This is a READ-ONLY function.
